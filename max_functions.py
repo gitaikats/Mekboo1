@@ -1,3 +1,5 @@
+import gzip
+
 import numpy as np
 from numba import cuda, njit, prange, float32
 import timeit
@@ -10,7 +12,12 @@ def max_cpu(A, B):
      np.array
          element-wise maximum between A and B
      """
-    pass
+    c = np.zeros((A.shape[0], A.shape[1]))
+    for i in range(A.shape[0]):
+        for j in range(A.shape[1]):
+            c[i][j] = max(A[i][j], B[i][j])
+    return c
+
 
 
 @njit(parallel=True)
@@ -21,7 +28,12 @@ def max_numba(A, B):
      np.array
          element-wise maximum between A and B
      """
-    pass
+    c = np.zeros((A.shape[0], A.shape[1]))
+    for i in prange(A.shape[0]):
+        for j in prange(A.shape[1]):
+            c[i][j] = max(A[i][j], B[i][j])
+    return c
+
 
 
 def max_gpu(A, B):
