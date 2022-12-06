@@ -13,8 +13,7 @@ def sigmoid(x):
          sigmoid of the input x
 
      """
-    y = sum(x)
-    return  1/(1 + np.exp(-y))
+    return 1/(1 + np.exp(-x))
 
 
 def sigmoid_prime(x):
@@ -29,7 +28,7 @@ def sigmoid_prime(x):
              derivative of sigmoid of the input x
 
     """
-    return sigmoid(x) *(1-sigmoid(x))
+    return sigmoid(x) * (1-sigmoid(x))
 
 
 
@@ -45,10 +44,11 @@ def random_weights(sizes):
              list of xavier initialized np arrays weight matrices
 
     """
-    a = np.array([])
+
+    x = []
     for i in range(len(sizes)-1):
-        a= np.append(a,[xavier_initialization(sizes[i],sizes[i+1])])
-    return a
+        x.append(xavier_initialization(sizes[i], sizes[i+1]))
+    return x
 
 
 
@@ -65,10 +65,10 @@ def zeros_weights(sizes):
 
     """
 
-    a = np.array([])
+    x = []
     for i in range(len(sizes) - 1):
-        a = np.append(a, (np.zeros(sizes[i],sizes[i+1])))
-    return a
+        x.append(np.zeros((sizes[i], sizes[i + 1])))
+    return x
 
 
 
@@ -85,7 +85,10 @@ def zeros_biases(list):
              list of zero np arrays bias matrices
 
     """
-    raise NotImplementedError("To be implemented")
+    x = []
+    for i in range(len(list) ):
+        x.append(np.zeros(list[i]))
+    return x
 
 
 def create_batches(data, labels, batch_size):
@@ -102,7 +105,29 @@ def create_batches(data, labels, batch_size):
              list of tuples of (data batch of batch_size, labels batch of batch_size)
 
     """
-    raise NotImplementedError("To be implemented")
+    minibatches = []
+    for i in range(data.shape[0] // batch_size):
+        data_mini = data[i * batch_size:(i + 1) * batch_size]
+        label_mini = labels[i * batch_size:(i + 1) * batch_size]
+        minibatches.append((data_mini, label_mini))
+    if (data.shape[0] % batch_size) != 0:
+        minibatches.append((data[batch_size * data.shape[0] // batch_size:], labels[batch_size * data.shape[0] // batch_size:]))
+
+    return minibatches
+    # x, y, z = [], [], []
+    # counter = 0
+    # for i, j in zip(data, labels):
+    #     y.append(i)
+    #     z.append(j)
+    #     counter += 1
+    #     if(counter == batch_size):
+    #         counter = 0
+    #         x.append((y,z))
+    #         y = []
+    #         z = []
+    # if(counter!=0):
+    #     x.append((y,z))
+    # return x
 
 
 def add_elementwise(list1, list2):
@@ -117,7 +142,11 @@ def add_elementwise(list1, list2):
          list
              list of sum of each two elements by index
     """
-    raise NotImplementedError("To be implemented")
+    x = []
+    for i, j in zip(list1, list2):
+        x.append(i + j)
+    return x
+
 
 def xavier_initialization(m, n):
     xavier = 1 / (m ** 0.5)
