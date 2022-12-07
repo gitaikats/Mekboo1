@@ -4,28 +4,21 @@ import timeit
 
 
 def matmul_transpose_trivial(X):
-    y = np.zeros(X.shape)
+    y = np.zeros((X.shape[0], X.shape[0]))
     for i in range(X.shape[0]):
         for j in range(X.shape[0]):
-            temp = 0
             for t in range(X.shape[1]):
-                temp += X[j][t] * X[i][t]
-            y[i][j] = temp
+                y[j][i] += X[j][t] * X[i][t]
     return y
-
-
-
 
 
 @njit
 def matmul_transpose_numba(X):
-    y = np.zeros(X.shape)
+    y = np.zeros((X.shape[0], X.shape[0]))
     for i in prange(X.shape[0]):
         for j in prange(X.shape[0]):
-            temp = 0
             for t in prange(X.shape[1]):
-                temp += X[j][t] * X[i][t]
-            y[i][j] = temp
+                y[j][i] += X[j][t] * X[i][t]
     return y
 
 
@@ -36,11 +29,17 @@ def matmul_transpose_gpu(X):
     final_result = result_gpu.copy_to_host()
     return final_result
 
+
 @cuda.jit
 def matmul_kernel(A, C):
-    raise NotImplementedError("To be implemented")
+    t_id = cuda.threadIdx.x
+    b_id = cuda.blockIdx.x
+    for x in range(t_id * (C.shape[0] ^ 2) // 1024, (t_id + 1) * (C.shape[0] ^ 2) // 1024):
+        for t in range(A.shape[1]):
+            C[i][j] += A[j][t] * A[i][t]
 
-#this is the comparison function - keep it as it is, don't change X or Y.
+
+# this is the comparison function - keep it as it is, don't change X or Y.
 def matmul_comparison():
     X = np.random.randn(784, 128)
     Xt = X.copy().transpose()
@@ -52,6 +51,7 @@ def matmul_comparison():
     print('Numpy:', timer(np.matmul, 2))
     print('Numba:', timer(matmul_transpose_numba, 1))
     print('CUDA:', timer(matmul_transpose_gpu, 1))
+
 
 if __name__ == '__main__':
     matmul_comparison()

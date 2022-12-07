@@ -6,26 +6,11 @@ from time import *
 from network import *
 from matmul_functions import *
 from datetime import datetime
-start_time = datetime.now()
-x = np.array([[4, 1, 4, 3, 20]
-             , [3, 5, 2, 4, 25]
-             , [1, 0, 1, 1, 12]
-             , [10, 3, 8, 0, 7]])
-y = np.array([[2, 1, 5, 1, 20]
-             , [2, 1, 5, 1, 20]
-             , [2, 1, 5, 1, 20]
-             , [2, 1, 5, 1, 20]])
-# print(sigmoid(x))
-# print(sigmoid_prime(x))
-# print(random_weights(x))
-for i in range(100000):
-    max_numba(x, y)
 
-# print(max_numba(x, y))
-end_time = datetime.now()
-print('Duration: {}'.format(end_time - start_time))
+y = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
-#
+print(matmul_transpose_trivial(y))
+
 # #os.environ['NUMBAPRO_NVVM'] = '/usr/local/cuda-9.0/nvvm/lib64/libnvvm.so'
 # #os.environ['NUMBAPRO_LIBDEVICE'] = '/usr/local/cuda-9.0/nvvm/libdevice/'
 #
