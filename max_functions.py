@@ -1,5 +1,3 @@
-import gzip
-
 import numpy as np
 from numba import cuda, njit, prange, float32
 import timeit
@@ -12,12 +10,11 @@ def max_cpu(A, B):
      np.array
          element-wise maximum between A and B
      """
-    c = np.zeros((A.shape[0], A.shape[1]))
+    c = np.zeros(A.shape)
     for i in range(A.shape[0]):
         for j in range(A.shape[1]):
-            c[i][j] = max(A[i][j], B[i][j])
+            c[i, j] = max(A[i, j], B[i, j])
     return c
-
 
 
 @njit(parallel=True)
@@ -28,12 +25,11 @@ def max_numba(A, B):
      np.array
          element-wise maximum between A and B
      """
-    c = np.zeros((A.shape[0], A.shape[1]))
+    c = np.zeros(A.shape)
     for i in prange(A.shape[0]):
         for j in prange(A.shape[1]):
-            c[i][j] = max(A[i][j], B[i][j])
+            c[i, j] = max(A[i, j], B[i, j])
     return c
-
 
 
 def max_gpu(A, B):
@@ -43,12 +39,18 @@ def max_gpu(A, B):
      np.array
          element-wise maximum between A and B
      """
-    pass
+    A_gpu = cuda.to_device(A)
+    max_kernel[1000, 1000](A_gpu, cuda.to_device(B))
+    c = A_gpu.copy_to_host()
+    return c
 
 
 @cuda.jit
-def max_kernel(A, B, C):
-    pass
+def max_kernel(A, B):
+    t_id = cuda.threadIdx.x
+    b_id = cuda.blockIdx.x
+    if A.shape[0] > b_id and A.shape[1] > t_id:
+        cuda.atomic.max(A[b_id], t_id, B[b_id, t_id])
 
 
 # this is the comparison function - keep it as it is.
