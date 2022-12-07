@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit, cuda
+from numba import njit, cuda, prange
 import timeit
 
 
@@ -30,7 +30,11 @@ def matmul_transpose_numba(X):
 
 
 def matmul_transpose_gpu(X):
-    raise NotImplementedError("To be implemented")
+    result = np.zeros((X.shape[0], X.shape[0]))
+    result_gpu = cuda.to_device(result)
+    matmul_kernel[1, 1024](cuda.to_device(X), result_gpu)
+    final_result = result_gpu.copy_to_host()
+    return final_result
 
 @cuda.jit
 def matmul_kernel(A, C):

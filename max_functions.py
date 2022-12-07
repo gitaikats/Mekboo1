@@ -39,10 +39,10 @@ def max_gpu(A, B):
      np.array
          element-wise maximum between A and B
      """
-    A_gpu = cuda.to_device(A)
-    max_kernel[1000, 1000](A_gpu, cuda.to_device(B))
-    c = A_gpu.copy_to_host()
-    return c
+    result_gpu = cuda.to_device(A)
+    max_kernel[1000, 1000](result_gpu, cuda.to_device(B))
+    final_result = result_gpu.copy_to_host()
+    return final_result
 
 
 @cuda.jit
